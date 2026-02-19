@@ -1,4 +1,4 @@
-DESCRIPTION = "Open Centauri Image"
+DESCRIPTION = "OpenCentauri Image"
 LICENSE = "MIT"
 
 IMAGE_INSTALL = "packagegroup-core-boot ${CORE_IMAGE_EXTRA_INSTALL}"
