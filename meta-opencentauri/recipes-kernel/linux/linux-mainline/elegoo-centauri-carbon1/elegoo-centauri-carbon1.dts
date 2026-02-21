@@ -139,9 +139,10 @@
 
 		dsp: dsp@1700000 {
 			compatible = "allwinner,sunxi-r528-hifi4-rproc";
-			reg = <0x01700000 0x100>,      /* DSP CFG */
-			      <0x03000000 0x10>;       /* SRAMC (for remap) */
-			reg-names = "cfg", "sram";
+			reg = <0x01700000 0x100>;
+			reg-names = "cfg";
+
+			allwinner,sram = <&syscon>;
 
 			clocks = <&ccu CLK_DSP>,
 			         <&ccu CLK_BUS_DSP_CFG>;
@@ -282,4 +283,9 @@
         reg = <0>;
         remote-endpoint = <&panel_in>;
     };
+};
+
+&syscon {
+	compatible = "allwinner,sun20i-d1-system-control",
+		"syscon";
 };

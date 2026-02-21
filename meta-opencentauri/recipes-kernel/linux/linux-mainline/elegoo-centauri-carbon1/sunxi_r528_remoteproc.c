@@ -4,8 +4,6 @@
 //
 // Allwinner R528/D1/T113 HiFi4 DSP remoteproc driver
 //
-// Based on hardware details from Allwinner's U-Boot DSP loader.
-//
 // The R528 SoC contains a Cadence/Tensilica HiFi4 DSP core. This driver
 // manages its lifecycle (load, start, stop) and provides the kick mechanism
 // for RPMsg communication via the MSGBOX mailbox.
@@ -29,13 +27,16 @@
 #include <linux/io.h>
 #include <linux/kernel.h>
 #include <linux/mailbox_client.h>
+#include <linux/mfd/syscon.h>
 #include <linux/module.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
 #include <linux/of_reserved_mem.h>
 #include <linux/platform_device.h>
+#include <linux/regmap.h>
 #include <linux/remoteproc.h>
 #include <linux/reset.h>
+#include <linux/workqueue.h>
 
 #include "remoteproc_internal.h"
 
@@ -75,7 +76,7 @@ struct sunxi_r528_rproc {
 	struct rproc *rproc;
 
 	void __iomem *cfg_base;		/* DSP CFG registers */
-	void __iomem *sram_base;	/* SRAMC registers (for remap) */
+	struct regmap *sram_regmap;	/* SRAMC registers (for remap) */
 
 	struct clk *clk_dsp;		/* DSP core clock */
 	struct clk *clk_cfg;		/* DSP cfg bus clock */
@@ -87,6 +88,9 @@ struct sunxi_r528_rproc {
 	struct mbox_client mbox_cl;
 	struct mbox_chan *mbox_tx;	/* TX channel: ARM -> DSP kick */
 	struct mbox_chan *mbox_rx;	/* RX channel: DSP -> ARM kick */
+
+	struct work_struct rx_work;	/* Deferred vring processing */
+	u32 rx_vqid;			/* Virtqueue ID from last kick */
 
 	struct sunxi_r528_rproc_mem *mem;
 	int num_mem;
@@ -104,17 +108,12 @@ struct sunxi_r528_rproc {
 
 static void sunxi_r528_rproc_sram_remap(struct sunxi_r528_rproc *dsp, bool arm_access)
 {
-	u32 val;
-
-	if (!dsp->sram_base)
+	if (IS_ERR_OR_NULL(dsp->sram_regmap))
 		return;
 
-	val = readl(dsp->sram_base + SRAMC_SRAM_REMAP_REG);
-	if (arm_access)
-		val |= SRAM_REMAP_ENABLE;
-	else
-		val &= ~SRAM_REMAP_ENABLE;
-	writel(val, dsp->sram_base + SRAMC_SRAM_REMAP_REG);
+	regmap_update_bits(dsp->sram_regmap, SRAMC_SRAM_REMAP_REG,
+	                   SRAM_REMAP_ENABLE,
+	                   arm_access ? SRAM_REMAP_ENABLE : 0);
 }
 
 static void sunxi_r528_rproc_set_runstall(struct sunxi_r528_rproc *dsp, bool stall)
@@ -166,8 +165,56 @@ static int sunxi_r528_rproc_prepare(struct rproc *rproc)
 	int index = 0;
 
 	/*
-	 * Register each reserved memory region as a carveout so the
-	 * remoteproc ELF loader can place firmware segments.
+	 * Register DSP local SRAM as carveouts.
+	 *
+	 * The DSP has local IRAM/DRAM accessible via its internal bus at
+	 * 0x00400000-0x0044FFFF. The ARM CPU can access these at the same
+	 * physical addresses. These aren't DDR so they're not in
+	 * reserved-memory, but we need them as carveouts so the ELF loader
+	 * can write firmware segments there via da_to_va().
+	 *
+	 * Ensure SRAM remap is set for ARM access during loading.
+	 */
+	sunxi_r528_rproc_sram_remap(dsp, true);
+
+	dev_dbg(dev, "prepare: registering DSP SRAM and DDR carveouts\n");
+
+	/* DSP IRAM: 64 KB at 0x00400000 (internal bus) */
+	mem = rproc_mem_entry_init(dev, NULL,
+				   (dma_addr_t)0x00400000, 0x10000,
+				   0x00400000,
+				   sunxi_r528_rproc_mem_alloc,
+				   sunxi_r528_rproc_mem_release,
+				   "dsp-iram");
+	if (!mem)
+		return -ENOMEM;
+	rproc_add_carveout(rproc, mem);
+
+	/* DSP DRAM0: 32 KB at 0x00420000 (internal bus) */
+	mem = rproc_mem_entry_init(dev, NULL,
+				   (dma_addr_t)0x00420000, 0x8000,
+				   0x00420000,
+				   sunxi_r528_rproc_mem_alloc,
+				   sunxi_r528_rproc_mem_release,
+				   "dsp-dram0");
+	if (!mem)
+		return -ENOMEM;
+	rproc_add_carveout(rproc, mem);
+
+	/* DSP DRAM1: 32 KB at 0x00440000 (internal bus) */
+	mem = rproc_mem_entry_init(dev, NULL,
+				   (dma_addr_t)0x00440000, 0x8000,
+				   0x00440000,
+				   sunxi_r528_rproc_mem_alloc,
+				   sunxi_r528_rproc_mem_release,
+				   "dsp-dram1");
+	if (!mem)
+		return -ENOMEM;
+	rproc_add_carveout(rproc, mem);
+
+	/*
+	 * Register each reserved memory region (DDR carveouts) so the
+	 * ELF loader can place firmware segments there too.
 	 */
 	of_phandle_iterator_init(&it, np, "memory-region", NULL, 0);
 	while (of_phandle_iterator_next(&it) == 0) {
@@ -178,13 +225,6 @@ static int sunxi_r528_rproc_prepare(struct rproc *rproc)
 			return -EINVAL;
 		}
 
-		/*
-		 * Register as a dynamically mapped carveout. The da (device
-		 * address) is set to FW_RSC_ADDR_ANY so the ELF loader will
-		 * use the physical addresses from the ELF headers directly.
-		 * If your DSP firmware uses a resource table with specific
-		 * device addresses, you may need to provide proper da values.
-		 */
 		mem = rproc_mem_entry_init(dev, NULL,
 					  (dma_addr_t)rmem->base,
 					  rmem->size, rmem->base,
@@ -239,8 +279,8 @@ static int sunxi_r528_rproc_start(struct rproc *rproc)
 	}
 
 	/* Set alternate reset vector (ELF entry point). */
-	if ((u32)rproc->bootaddr != DSP_DEFAULT_RST_VEC) {
-		writel(rproc->bootaddr,
+	if (rproc->bootaddr != DSP_DEFAULT_RST_VEC) {
+		writel((u32)rproc->bootaddr,
 		       dsp->cfg_base + DSP_ALT_RESET_VEC_REG);
 
 		val = readl(dsp->cfg_base + DSP_CTRL_REG0);
@@ -291,6 +331,9 @@ static int sunxi_r528_rproc_stop(struct rproc *rproc)
 
 	dev_dbg(dsp->dev, "stopping DSP\n");
 
+	/* Cancel any pending deferred vring work. */
+	cancel_work_sync(&dsp->rx_work);
+
 	/* Stall the DSP. */
 	sunxi_r528_rproc_set_runstall(dsp, true);
 
@@ -326,33 +369,47 @@ static void sunxi_r528_rproc_kick(struct rproc *rproc, int vqid)
 }
 
 /*
- * Translate DSP device addresses to kernel virtual addresses.
+ * Translate DSP device addresses to ARM physical addresses.
  *
- * The HiFi4 DSP on the R528 has an address remap that swaps two ranges:
- *   DSP view 0x10000000-0x1fffffff <-> physical 0x30000000-0x3fffffff
- *   DSP view 0x30000000-0x3fffffff <-> physical 0x10000000-0x1fffffff
+ * The HiFi4 DSP on the R528 has multiple views of memory, each at different
+ * address ranges. This function converts from the DSP's address space to
+ * the ARM's physical address space so the ELF loader can write firmware data.
  *
- * For addresses outside these ranges, the DSP address equals the physical
- * address. The remoteproc carveouts handle the actual ioremap; this
- * function just needs to match the device address to the right carveout.
+ * R528 DSP Memory Map (from user manual):
+ *
+ *   DSP Address            ARM Physical          Description
+ *   ---------------------------------------------------------------
+ *   0x00020000-0x00047FFF  same                  SRAM A1 + DSP SRAM (ext bus)
+ *   0x00400000-0x0040FFFF  same                  DSP IRAM (internal bus, 64K)
+ *   0x00420000-0x00427FFF  same                  DSP DRAM0 (internal bus, 32K)
+ *   0x00440000-0x00447FFF  same                  DSP DRAM1 (internal bus, 32K)
+ *   0x10000000-0x1FFFFFFF  +0x30000000 (=0x4..)  DDR non-cacheable (256 MB)
+ *   0x30000000-0x3FFFFFFF  +0x10000000 (=0x4..)  DDR cacheable (256 MB)
+ *   0x40000000-0x7FFFFFFF  same                  DDR direct non-cacheable (1G)
+ *   0xC0000000-0xFFFFFFFF  -0x80000000 (=0x4..)  DDR cacheable (1 GB)
  */
 static void *sunxi_r528_rproc_da_to_va(struct rproc *rproc, u64 da, size_t len,
 				   bool *is_iomem)
 {
+	struct device *dev = rproc->dev.parent;
 	struct rproc_mem_entry *carveout;
 	phys_addr_t pa;
 
 	/* Apply the DSP address remap to get the physical address. */
 	if (da >= 0x10000000 && da < 0x20000000)
-		pa = da - 0x10000000 + 0x30000000;
+		pa = da + 0x30000000;
 	else if (da >= 0x30000000 && da < 0x40000000)
-		pa = da - 0x30000000 + 0x10000000;
+		pa = da + 0x10000000;
+	else if (da >= 0xC0000000)
+		pa = da - 0x80000000; 
 	else
 		pa = da;
 
 	/*
 	 * Walk the carveout list to find which memory region contains this
 	 * physical address and return the corresponding virtual address.
+	 * This covers both DDR reserved-memory regions and the DSP SRAM
+	 * regions that were registered in prepare().
 	 */
 	list_for_each_entry(carveout, &rproc->carveouts, node) {
 		if (pa >= carveout->dma &&
@@ -365,25 +422,40 @@ static void *sunxi_r528_rproc_da_to_va(struct rproc *rproc, u64 da, size_t len,
 		}
 	}
 
+	dev_err(dev, "da_to_va failed: no carveout for da=0x%llx pa=0x%pa\n",
+		da, &pa);
 	return NULL;
 }
 
 /*
+ * Deferred vring processing — runs in process context via workqueue.
+ *
+ * The MSGBOX IRQ handler cannot call rproc_vq_interrupt() directly
+ * because the virtio callback chain (rpmsg_ns_cb → device_add →
+ * tty_register_device) needs to sleep. We defer to a workqueue.
+ */
+static void sunxi_r528_rproc_rx_work(struct work_struct *work)
+{
+	struct sunxi_r528_rproc *dsp = container_of(work,
+						    struct sunxi_r528_rproc,
+						    rx_work);
+
+	if (rproc_vq_interrupt(dsp->rproc, dsp->rx_vqid) == IRQ_NONE)
+		dev_dbg(dsp->dev, "no handler for vqid %d\n", dsp->rx_vqid);
+}
+
+/*
  * Mailbox RX callback — the DSP is kicking us.
- * This is called when the DSP sends a message on the MSGBOX channel,
- * typically to signal that a virtqueue has new buffers to process.
+ * This runs in hardirq context, so we schedule a work item
+ * to process the virtqueue in process context.
  */
 static void sunxi_r528_rproc_mbox_rx_cb(struct mbox_client *cl, void *data)
 {
 	struct rproc *rproc = dev_get_drvdata(cl->dev);
-	u32 msg = *(u32 *)data;
+	struct sunxi_r528_rproc *dsp = rproc->priv;
 
-	/*
-	 * The message value is the virtqueue index. Notify the remoteproc
-	 * framework so it can process the virtqueue.
-	 */
-	if (rproc_vq_interrupt(rproc, msg) == IRQ_NONE)
-		dev_dbg(cl->dev, "no handler for vqid %d\n", msg);
+	dsp->rx_vqid = *(u32 *)data;
+	schedule_work(&dsp->rx_work);
 }
 
 static void sunxi_r528_rproc_free_mbox(struct sunxi_r528_rproc *dsp)
@@ -405,8 +477,7 @@ static int sunxi_r528_rproc_request_mbox(struct sunxi_r528_rproc *dsp)
 	dsp->mbox_cl.dev = dev;
 	dsp->mbox_cl.rx_callback = sunxi_r528_rproc_mbox_rx_cb;
 	dsp->mbox_cl.tx_done = NULL;
-	dsp->mbox_cl.tx_block = true;
-	dsp->mbox_cl.tx_tout = 500; /* ms */
+	dsp->mbox_cl.tx_block = false;
 	dsp->mbox_cl.knows_txdone = false;
 
 	/*
@@ -468,6 +539,7 @@ static int sunxi_r528_rproc_probe(struct platform_device *pdev)
 	dsp = rproc->priv;
 	dsp->rproc = rproc;
 	dsp->dev = dev;
+	INIT_WORK(&dsp->rx_work, sunxi_r528_rproc_rx_work);
 
 	platform_set_drvdata(pdev, rproc);
 	dev_set_drvdata(dev, rproc);
@@ -481,10 +553,13 @@ static int sunxi_r528_rproc_probe(struct platform_device *pdev)
 	}
 
 	/* Map SRAMC registers (optional — needed for SRAM remap). */
-	dsp->sram_base = devm_platform_ioremap_resource_byname(pdev, "sram");
-	if (IS_ERR(dsp->sram_base)) {
-		dev_warn(dev, "no SRAM remap registers, skipping remap\n");
-		dsp->sram_base = NULL;
+	/* Get SRAMC regmap via syscon (shared with other drivers). */
+	dsp->sram_regmap = syscon_regmap_lookup_by_phandle(dev->of_node,
+							   "allwinner,sram");
+	if (IS_ERR(dsp->sram_regmap)) {
+		dev_warn(dev, "SRAM syscon lookup failed: %ld\n",
+				PTR_ERR(dsp->sram_regmap));
+		dsp->sram_regmap = NULL;
 	}
 
 	/* Get clocks. */
@@ -552,6 +627,7 @@ static int sunxi_r528_rproc_remove(struct platform_device *pdev)
 	struct sunxi_r528_rproc *dsp = rproc->priv;
 
 	rproc_del(rproc);
+	cancel_work_sync(&dsp->rx_work);
 	sunxi_r528_rproc_free_mbox(dsp);
 	rproc_free(rproc);
 
