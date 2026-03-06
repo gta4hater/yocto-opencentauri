@@ -14,7 +14,7 @@ RPROVIDES:${PN} += "klipper-firmware-dsp"
 
 EXTRA_OEMAKE += " KCONFIG_CONFIG=../config.mainboard"
 
-INITSCRIPT_NAME = "opencentauri-firmware"
+INITSCRIPT_NAME = "klipper-firmware-dsp"
 INITSCRIPT_PARAMS = "defaults 94 4"
 
 INHIBIT_PACKAGE_STRIP = "1"

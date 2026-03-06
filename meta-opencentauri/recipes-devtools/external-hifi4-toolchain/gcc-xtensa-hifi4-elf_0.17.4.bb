@@ -33,8 +33,8 @@ COMPATIBLE_HOST = "(x86_64|aarch64).*-linux"
 SUMMARY = "Xtensa Zephyr Toolchain - hifi4 bare-metal target (xtensa-nxp_rt700_hifi4_zephyr)"
 LICENSE = "GPL-3.0-with-GCC-exception & GPL-3.0-only"
 
-LIC_FILES_CHKSUM:aarch64 = "file://share/licenses/gcc/COPYING;md5=402090210d41f07263e91f760d0d1ea3"
-LIC_FILES_CHKSUM:x86-64 = "file://share/licenses/gcc/COPYING;md5=2a62a4d37ddad55da732679acd9edf03"
+LIC_FILES_CHKSUM:aarch64 = "file://share/licenses/gcc/COPYING;md5=59530bdf33659b29e73d4adb9f9f6552"
+LIC_FILES_CHKSUM:x86-64 = "file://share/licenses/gcc/COPYING;md5=59530bdf33659b29e73d4adb9f9f6552"
 
 SRC_URI = "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${PV}/toolchain_linux-${HOST_ARCH}_xtensa-nxp_rt700_hifi4_zephyr-elf.tar.xz;name=gcc-${HOST_ARCH}"
 SRC_URI[gcc-aarch64.sha256sum] = "857ffd120af6fee573afbc7f29ec0519d2643a9613588c70eb9f6f3488bad1b9"
