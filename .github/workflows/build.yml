@@ -39,7 +39,7 @@ jobs:
       - name: Build image
         run: |
           source poky/oe-init-build-env build
-          bitbake opencentauri-image
+          bitbake opencentauri-upgrade
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
