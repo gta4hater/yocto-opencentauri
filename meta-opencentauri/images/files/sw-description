@@ -30,6 +30,15 @@ software =
                     sha256 = "$swupdate_get_sha256(u-boot-sunxi-with-spl.bin)"
                 }
             );
+            files: (
+                {
+                    filename = "lines1.bmp";
+                    path = "/bootlogo.bmp";
+                    device = "/dev/mmcblk0p1";
+                    filesystem = "vfat";
+                    sha256 = "$swupdate_get_sha256(lines1.bmp)";
+                }
+            );
             bootenv: (
                 {
                     name = "boot_part";
@@ -53,7 +62,7 @@ software =
                 },
                 {
                     name = "setargs_mainline";
-                    value = "setenv bootargs console=ttyS0,115200 earlycon=uart8250,mmio32,0x02500000 root=${mmc_root} rootwait";
+                    value = "setenv bootargs console=ttyS0,115200 earlycon=uart8250,mmio32,0x02500000 root=${mmc_root} rootwait consoleblank=0";
                 },
                 {
                     name = "bootcmd_stock";
@@ -66,6 +75,22 @@ software =
                 {
                     name = "bootcmd";
                     value = "if test x${swu_mode} = xmainline; then run bootcmd_mainline; else run bootcmd_stock; fi";
+                },
+                {
+                    name = "preboot";
+                    value = "load mmc 0:1 0x43000000 bootlogo.bmp; bmp display 0x43000000; usb start";
+                },
+                {
+                    name = "stdin";
+                    value = "serial";
+                },
+                {
+                    name = "stdout";
+                    value = "serial";
+                },
+                {
+                    name = "stderror";
+                    value = "serial";
                 }
             );
         };
@@ -93,6 +118,15 @@ software =
                     sha256 = "$swupdate_get_sha256(u-boot-sunxi-with-spl.bin)"
                 }
             );
+            files: (
+                {
+                    filename = "lines1.bmp";
+                    path = "/bootlogo.bmp";
+                    device = "/dev/mmcblk0p1";
+                    filesystem = "vfat";
+                    sha256 = "$swupdate_get_sha256(lines1.bmp)";
+                }
+            );
             bootenv: (
                 {
                     name = "boot_part";
@@ -116,7 +150,7 @@ software =
                 },
                 {
                     name = "setargs_mainline";
-                    value = "setenv bootargs console=ttyS0,115200 earlycon=uart8250,mmio32,0x02500000 root=${mmc_root} rootwait";
+                    value = "setenv bootargs console=ttyS0,115200 earlycon=uart8250,mmio32,0x02500000 root=${mmc_root} rootwait consoleblank=0";
                 },
                 {
                     name = "bootcmd_stock";
@@ -129,6 +163,22 @@ software =
                 {
                     name = "bootcmd";
                     value = "if test x${swu_mode} = xmainline; then run bootcmd_mainline; else run bootcmd_stock; fi";
+                },
+                {
+                    name = "preboot";
+                    value = "load mmc 0:1 0x43000000 bootlogo.bmp; bmp display 0x43000000; usb start";
+                },
+                {
+                    name = "stdin";
+                    value = "serial";
+                },
+                {
+                    name = "stdout";
+                    value = "serial";
+                },
+                {
+                    name = "stderror";
+                    value = "serial";
                 }
             );
         };
