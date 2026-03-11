@@ -37,6 +37,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
     zram \
     zram-emmc-swap \
     usb-automount \
+    psplash \
 "
 
 WKS_FILES = "opencentauri-usb-image.wks.in"
