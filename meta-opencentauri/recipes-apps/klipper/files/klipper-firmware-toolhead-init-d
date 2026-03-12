@@ -19,9 +19,8 @@ case "$1" in
         echo out > /sys/class/gpio/gpio$GPIO/direction
         echo 1 > /sys/class/gpio/gpio$GPIO/value
         echo $GPIO > /sys/class/gpio/unexport
-        sleep 1
-        mcu-flasher --firmware $FIRMWARE --no-wait $SERIALPORT \
-            --firmware-version 6.3.9
+        sleep 3
+        mcu-flasher --firmware $FIRMWARE --no-wait $SERIALPORT --firmware-version 6.3.9
         ;;
     stop)
         echo "Stopping klipper-firmware-toolhead..."
