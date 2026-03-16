@@ -26,7 +26,10 @@ case "$1" in
         cp -n /etc/klipper/macros.cfg $PRINTER_DATA/config
         cp -n /etc/moonraker/moonraker.conf $PRINTER_DATA/config
         cp -n /etc/mainsail/mainsail.cfg $PRINTER_DATA/config
+        cp -n /etc/fluidd/fluidd.cfg $PRINTER_DATA/config
         cp -n /etc/guppyscreen/guppyconfig.json $PRINTER_DATA/config
+        cp -n /etc/atomscreen/atomscreen.toml $PRINTER_DATA/config
+        cp -n /etc/display.conf $PRINTER_DATA/config
 
         # Set up /dev/by-name dir which swupdate expects to have
         ln -s /dev/disk/by-partlabel /dev/by-name

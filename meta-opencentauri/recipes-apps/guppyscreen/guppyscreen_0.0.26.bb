@@ -26,10 +26,11 @@ DEPENDS = "cmake-native"
 RDEPENDS:${PN} = " \
     klipper \
     moonraker \
+    gui-switcher \
 "
 
 INITSCRIPT_NAME = "guppyscreen"
-INITSCRIPT_PARAMS = "defaults 96 4"
+INITSCRIPT_PARAMS = "disable"
 
 EXTRA_OEMAKE = " \
     CROSS_COMPILE=yocto- \

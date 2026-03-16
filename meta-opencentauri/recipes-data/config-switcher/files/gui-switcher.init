@@ -1,0 +1,47 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          gui-switcher
+# Required-Start:    $local_fs $remote_fs $network
+# Required-Stop:     $local_fs $remote_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: GUI Switcher
+### END INIT INFO
+
+CONF=/user-resource/printer_data/config/display.conf
+GUI=guppyscreen
+
+[ -f "$CONF" ] && . "$CONF"
+
+case "$1" in
+    start)
+        if [ -x "/etc/init.d/${GUI}" ]; then
+            /etc/init.d/${GUI} start
+        fi
+        ;;
+    stop)
+        # Stop all possible GUIs
+        for gui in guppyscreen helixscreen atomscreen; do
+            [ -f "/var/run/${gui}.pid" ] && /etc/init.d/${gui} stop 2>/dev/null
+        done
+        ;;
+    restart|force-reload)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    status)
+        if [ -f "/var/run/${gui}.pid" ] && kill -0 "$(cat "/var/run/${gui}.pid")" 2>/dev/null; then
+            echo "${gui} is running (PID $(cat "/var/run/${gui}.pid"))"
+        else
+            echo "${gui} is not running"
+            return 1
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+
+exit 0

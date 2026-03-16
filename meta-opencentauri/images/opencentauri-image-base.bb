@@ -20,6 +20,8 @@ CORE_IMAGE_EXTRA_INSTALL += "\
     kalico \
     moonraker \
     mainsail \
+    fluidd \
+    atomscreen \
     guppyscreen \
     htop \
     i2c-tools \
