@@ -11,7 +11,7 @@
 FIRMWARE="/lib/firmware/klipper-bed.bin"
 FIRMWARE_VERSION="/lib/firmware/klipper-bed.bin.ver"
 KATAPULT_DEPLOYER="/lib/firmware/katapult-deployer-bed.bin"
-INSTALLED_VERSION="/mnt/writable/bed.ver"
+INSTALLED_VERSION="/user-resource/bed.ver"
 SERIALPORT="/dev/ttyS4"
 GPIO="201"
 

@@ -16,7 +16,7 @@ index 4406d9d..982046a 100644
  
      Config *conf = Config::get_instance();
 -    auto config_path = fs::canonical("/proc/self/exe").parent_path() / "guppyconfig.json";
-+    auto config_path = fs::path("/printer_data/config") / "guppyconfig.json";
++    auto config_path = fs::path("/user-resource/printer_data/config") / "guppyconfig.json";
      conf->init(config_path.string(), "/usr/data/printer_data/thumbnails");
  
      GuppyScreen::init(hal_init);

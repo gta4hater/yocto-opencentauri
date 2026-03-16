@@ -1,1 +1,1 @@
-DROPBEAR_RSAKEY_DIR=/mnt/writable/dropbear
+DROPBEAR_RSAKEY_DIR=/user-resource/dropbear

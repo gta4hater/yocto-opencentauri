@@ -11,16 +11,16 @@ software =
         now_A_next_B = {
             images: (
                 {
-                    filename = "boot.img";
+                    filename = "bootA.img";
                     device = "/dev/mmcblk0p7";
                     installed-directly = true;
-                    sha256 = "$swupdate_get_sha256(boot.img)"
+                    sha256 = "$swupdate_get_sha256(bootA.img)"
                 },
                 {
-                    filename = "opencentauri-image-elegoo-centauri-carbon1.rootfs.squashfs";
+                    filename = "opencentauri-image-mmc-elegoo-centauri-carbon1.rootfs.squashfs";
                     device = "/dev/mmcblk0p8";
                     installed-directly = true;
-                    sha256 = "$swupdate_get_sha256(opencentauri-image-elegoo-centauri-carbon1.rootfs.squashfs)"
+                    sha256 = "$swupdate_get_sha256(opencentauri-image-mmc-elegoo-centauri-carbon1.rootfs.squashfs)"
                 },
                 {
                     filename = "u-boot-sunxi-with-spl.bin";
@@ -96,16 +96,16 @@ software =
         now_B_next_A = {
             images: (
                 {
-                    filename = "boot.img";
+                    filename = "bootA.img";
                     device = "/dev/mmcblk0p4";
                     installed-directly = true;
-                    sha256 = "$swupdate_get_sha256(boot.img)"
+                    sha256 = "$swupdate_get_sha256(bootA.img)"
                 },
                 {
-                    filename = "opencentauri-image-elegoo-centauri-carbon1.rootfs.squashfs";
+                    filename = "opencentauri-image-mmc-elegoo-centauri-carbon1.rootfs.squashfs";
                     device = "/dev/mmcblk0p5";
                     installed-directly = true;
-                    sha256 = "$swupdate_get_sha256(opencentauri-image-elegoo-centauri-carbon1.rootfs.squashfs)"
+                    sha256 = "$swupdate_get_sha256(opencentauri-image-mmc-elegoo-centauri-carbon1.rootfs.squashfs)"
                 },
                 {
                     filename = "u-boot-sunxi-with-spl.bin";

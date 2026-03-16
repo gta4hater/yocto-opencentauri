@@ -6,20 +6,20 @@ SRC_URI = " \
     file://sw-description \
 "
 
-IMAGE_DEPENDS = "opencentauri-image virtual/kernel u-boot"
+IMAGE_DEPENDS = "opencentauri-image-mmc virtual/kernel u-boot"
 
 SWUPDATE_IMAGES = " \
-    opencentauri-image-elegoo-centauri-carbon1.rootfs \
-    boot \
+    opencentauri-image-mmc-elegoo-centauri-carbon1.rootfs \
+    bootA \
     bootlogos \
     u-boot-sunxi-with-spl \
 "
 
-SWUPDATE_IMAGES_FSTYPES[opencentauri-image-elegoo-centauri-carbon1.rootfs] = ".squashfs"
-SWUPDATE_IMAGES_NOAPPEND_MACHINE[opencentauri-image-elegoo-centauri-carbon1.rootfs] = "1"
+SWUPDATE_IMAGES_FSTYPES[opencentauri-image-mmc-elegoo-centauri-carbon1.rootfs] = ".squashfs"
+SWUPDATE_IMAGES_NOAPPEND_MACHINE[opencentauri-image-mmc-elegoo-centauri-carbon1.rootfs] = "1"
 
-SWUPDATE_IMAGES_FSTYPES[boot] = ".img"
-SWUPDATE_IMAGES_NOAPPEND_MACHINE[boot] = "1"
+SWUPDATE_IMAGES_FSTYPES[bootA] = ".img"
+SWUPDATE_IMAGES_NOAPPEND_MACHINE[bootA] = "1"
 
 SWUPDATE_IMAGES_FSTYPES[bootlogos] = ".img"
 SWUPDATE_IMAGES_NOAPPEND_MACHINE[bootlogos] = "1"

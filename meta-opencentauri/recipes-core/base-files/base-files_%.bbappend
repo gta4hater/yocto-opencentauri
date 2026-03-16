@@ -5,7 +5,8 @@ SRC_URI += " \
 "
 
 do_install:append() {
-    install -d -m 0755 ${D}/mnt/writable
-    install -d -m 0755 ${D}/printer_data
+    install -d ${D}/user-resource
+    install -d ${D}/board-resource
+    install -d ${D}/boot-resource
     install -m 0644 ${WORKDIR}/motd-opencentauri ${D}${sysconfdir}/motd
 }

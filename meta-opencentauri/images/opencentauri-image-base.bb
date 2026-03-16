@@ -1,19 +1,13 @@
-DESCRIPTION = "OpenCentauri Image"
+DESCRIPTION = "OpenCentauri Base Image"
 LICENSE = "GPL-3.0-only"
 
 IMAGE_INSTALL = "packagegroup-core-boot ${CORE_IMAGE_EXTRA_INSTALL}"
 
-IMAGE_FSTYPES += "wic squashfs"
-
 IMAGE_LINGUAS = " "
 
-inherit core-image extract-partition
+inherit core-image
 
-IMAGE_FEATURES += "\
-    ssh-server-dropbear \
-    package-management \
-    read-only-rootfs \
-"
+IMAGE_FEATURES += "ssh-server-dropbear"
 
 CORE_IMAGE_EXTRA_INSTALL += "\
     usbutils \
@@ -40,12 +34,6 @@ CORE_IMAGE_EXTRA_INSTALL += "\
     psplash \
     opencentauri-bootlogos \
 "
-
-WKS_FILES = "opencentauri-usb-image.wks.in"
-WKS_FILE_DEPENDS += "squashfs-tools-native"
-
-EXTRACT_PARTITION_LABELS = "boot bootlogos"
-WIC_CREATE_EXTRA_ARGS += "--no-fstab-update"
 
 INITRAMFS_IMAGE = "core-image-tiny-initramfs"
 INITRAMFS_FSTYPES = "cpio.gz"

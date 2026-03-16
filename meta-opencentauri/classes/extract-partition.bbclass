@@ -44,7 +44,7 @@ python do_extract_partition() {
             bb.note("Extracted partition '%s' to %s" % (label, out))
 
     if labels:
-        bb.fatal("Could not find partition with label '%s'" % label)
+        bb.fatal("Could not find partition with label(s) '%s'" % ' '.join(labels))
 }
 
 addtask do_extract_partition after do_image_complete before do_build

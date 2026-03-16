@@ -9,7 +9,7 @@ iface wlan0 inet dhcp
 	wireless_mode managed
 	wireless_essid any
 	wpa-driver nl80211
-	wpa-conf /mnt/writable/wpa_supplicant.conf
+	wpa-conf /user-resource/wpa_supplicant.conf
 	post-up iw dev wlan0 set power_save off
 
 # Wired or wireless interfaces

@@ -65,7 +65,7 @@ Note that the current install requires having a serial UART connected to the CC1
 
    Configure your WiFi SSID and password:
    ```bash
-   wpa_passphrase "SSID" "password" > /etc/wpa_supplicant.conf
+   wpa_passphrase "SSID" "password" > /user-resource/wpa_supplicant.conf
    ```
    Then restart the WiFi adapter:
    ```bash
@@ -77,7 +77,7 @@ Note that the current install requires having a serial UART connected to the CC1
 
 ## Configuration and Services
 
-- **Klipper Configuration:** In the current build, the Klipper `printer.cfg` is located in `/printer_data/config/printer.cfg`.
+- **Klipper Configuration:** In the current build, the Klipper `printer.cfg` is located in `/user-resource/printer_data/config/printer.cfg`.
 - **Services:** Everything is running as an `init.d` service. You can restart Klipper by running:
   ```bash
   service klipper restart

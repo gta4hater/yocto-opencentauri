@@ -1,6 +1,6 @@
 {
     "default_printer": "printer",
-    "log_path": "/printer_data/logs/guppyscreen.log",
+    "log_path": "/user-resource/printer_data/logs/guppyscreen.log",
     "printers": {
         "printer": {
             "display_sleep_sec": 300,
@@ -9,6 +9,7 @@
             "moonraker_port": 7125
         }
     },
-    "thumbnail_path": "/printer_data/thumbnails",
-    "wpa_supplicant": "/mnt/writable/wpa_supplicant.conf"
+    "thumbnail_path": "/user-resource/printer_data/thumbnails",
+    "wpa_supplicant": "/user-resource/wpa_supplicant.conf",
+    "guppy_init_script": "/etc/init.d/guppyscreen"
 }
