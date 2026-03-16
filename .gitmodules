@@ -18,3 +18,7 @@
 	path = meta-swupdate
 	url = https://github.com/sbabic/meta-swupdate.git
 	branch = scarthgap
+[submodule "meta-lts-mixins"]
+	path = meta-lts-mixins
+	url = https://git.yoctoproject.org/meta-lts-mixins
+	branch = scarthgap/rust
