@@ -10,20 +10,20 @@
 
 CONF=/user-resource/printer_data/config/display.conf
 GUI=guppyscreen
+PIDFILE=/var/run/gui.pid
 
 [ -f "$CONF" ] && . "$CONF"
 
 case "$1" in
     start)
+        echo "Starting GUI...\n"
         if [ -x "/etc/init.d/${GUI}" ]; then
             /etc/init.d/${GUI} start
         fi
         ;;
     stop)
-        # Stop all possible GUIs
-        for gui in guppyscreen helixscreen atomscreen; do
-            [ -f "/var/run/${gui}.pid" ] && /etc/init.d/${gui} stop 2>/dev/null
-        done
+        printf "Stopping GUI...\n"
+        start-stop-daemon -K -p "$PIDFILE" -R 10
         ;;
     restart|force-reload)
         $0 stop
@@ -31,8 +31,8 @@ case "$1" in
         $0 start
         ;;
     status)
-        if [ -f "/var/run/${gui}.pid" ] && kill -0 "$(cat "/var/run/${gui}.pid")" 2>/dev/null; then
-            echo "${gui} is running (PID $(cat "/var/run/${gui}.pid"))"
+        if [ -f "/var/run/gui.pid" ] && kill -0 "$(cat "/var/run/gui.pid")" 2>/dev/null; then
+            echo "${gui} is running (PID $(cat "/var/run/gui.pid"))"
         else
             echo "${gui} is not running"
             return 1

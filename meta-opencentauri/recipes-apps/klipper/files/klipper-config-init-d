@@ -28,6 +28,7 @@ case "$1" in
         cp -n /etc/mainsail/mainsail.cfg $PRINTER_DATA/config
         cp -n /etc/fluidd/fluidd.cfg $PRINTER_DATA/config
         cp -n /etc/guppyscreen/guppyconfig.json $PRINTER_DATA/config
+        cp -n /etc/grumpyscreen/grumpyscreen.cfg $PRINTER_DATA/config
         cp -n /etc/atomscreen/atomscreen.toml $PRINTER_DATA/config
         cp -n /etc/display.conf $PRINTER_DATA/config
 

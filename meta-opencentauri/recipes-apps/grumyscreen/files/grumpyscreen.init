@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          atomscreen
+# Provides:          grumpyscreen
 # Required-Start:    $local_fs $network klipper moonraker
 # Required-Stop:     $local_fs $network
 # Default-Start:     2 3 4 5
@@ -8,17 +8,17 @@
 # Description:       Guppy Screen - Touch UI for Klipper
 ### END INIT INFO
 
-ATOMSCREEN_EXEC=/usr/bin/atomscreen
-ATOMSCREEN_ARGS=/user-resource/printer_data/config/atomscreen.toml
+GRUMPYSCREEN_EXEC=/usr/bin/grumpyscreen
 PIDFILE=/var/run/gui.pid
 
 case "$1" in
     start)
-        echo "Starting atomscreen...\n"
-        start-stop-daemon -S -b -m -p "$PIDFILE" -x $ATOMSCREEN_EXEC -- $ATOMSCREEN_ARGS
+        echo "Starting grumpyscreen...\n"
+        # Start grumpyscreen in the background
+        start-stop-daemon -S -b -m -p "$PIDFILE" -x "$GRUMPYSCREEN_EXEC"
         ;;
     stop)
-        echo "Stopping atomscreen...\n"
+        echo "Stopping grumpyscreen...\n"
         start-stop-daemon -K -p "$PIDFILE" -R 10
         rm -f $PIDFILE
         ;;
@@ -29,9 +29,9 @@ case "$1" in
         ;;
     status)
         if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-            echo "atomscreen is running (PID $(cat "$PIDFILE"))"
+            echo "grumpyscreen is running (PID $(cat "$PIDFILE"))"
         else
-            echo "atomscreen is not running"
+            echo "grumpyscreen is not running"
             return 1
         fi
         ;;

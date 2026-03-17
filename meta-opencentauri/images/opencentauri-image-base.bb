@@ -23,6 +23,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
     fluidd \
     atomscreen \
     guppyscreen \
+    grumpyscreen \
     htop \
     i2c-tools \
     nano \

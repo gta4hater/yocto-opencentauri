@@ -9,12 +9,11 @@
 ### END INIT INFO
 
 GUPPYSCREEN_EXEC=/usr/bin/guppyscreen
-CONFIG_DIR=/etc/guppyscreen
-PIDFILE=/var/run/guppyscreen.pid
+PIDFILE=/var/run/gui.pid
 
 case "$1" in
     start)
-        echo "Starting guppyscreen..."
+        echo "Starting guppyscreen...\n"
         # Disable console cursor blinking
         if [ -e /sys/class/graphics/fbcon/cursor_blink ]; then
             echo 0 > /sys/class/graphics/fbcon/cursor_blink
@@ -23,7 +22,7 @@ case "$1" in
         start-stop-daemon -S -b -m -p "$PIDFILE" -x "$GUPPYSCREEN_EXEC"
         ;;
     stop)
-        printf "Stopping guppyscreen..."
+        echo "Stopping guppyscreen...\n"
         start-stop-daemon -K -p "$PIDFILE" -R 10
         rm -f $PIDFILE
         ;;
