@@ -34,15 +34,16 @@ do_install() {
     cp -r ${S}/* ${D}/var/www/mainsail/
 
     # Install default mainsail config
-    install -d ${D}${sysconfdir}/mainsail
-    cp ${WORKDIR}/mainsail.cfg ${D}${sysconfdir}/mainsail
+    install -d ${D}${sysconfdir}/klipper
+    install -d ${D}${sysconfdir}/klipper/config
+    install -m 0644 ${WORKDIR}/mainsail.cfg ${D}${sysconfdir}/klipper/config/
 }
 
 FILES:${PN} = " \
     /var/www/mainsail \
-    ${sysconfdir}/mainsail/mainsail.cfg \
+    ${sysconfdir}/klipper/config/mainsail.cfg \
 "
 
 CONFFILES:${PN} = " \
-    ${sysconfdir}/mainsail/mainsail.cfg \
+    ${sysconfdir}/klipper/config/mainsail.cfg \
 "

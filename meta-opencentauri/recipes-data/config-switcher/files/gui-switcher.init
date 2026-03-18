@@ -8,7 +8,7 @@
 # Short-Description: GUI Switcher
 ### END INIT INFO
 
-CONF=/user-resource/printer_data/config/display.conf
+CONF=/etc/klipper/config/display.conf
 GUI=guppyscreen
 PIDFILE=/var/run/gui.pid
 

@@ -9,7 +9,7 @@
 ### END INIT INFO
 
 ATOMSCREEN_EXEC=/usr/bin/atomscreen
-ATOMSCREEN_ARGS=/user-resource/printer_data/config/atomscreen.toml
+ATOMSCREEN_ARGS=/etc/klipper/config/atomscreen.toml
 PIDFILE=/var/run/gui.pid
 
 case "$1" in

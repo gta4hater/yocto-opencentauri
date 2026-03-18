@@ -16,10 +16,12 @@ do_install() {
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${WORKDIR}/gui-switcher.init ${D}${sysconfdir}/init.d/gui-switcher
 
-    install ${WORKDIR}/display.conf ${D}${sysconfdir}/display.conf
+    install -d ${D}${sysconfdir}/klipper
+    install -d ${D}${sysconfdir}/klipper/config
+    install -m 0644 ${WORKDIR}/display.conf ${D}${sysconfdir}/klipper/config
 }
 
 FILES_${PN} += " \
     ${sysconfdir}/init.d/gui-switcher \
-    ${sysconfdir}/display.conf \
+    ${sysconfdir}/klipper/config/display.conf \
 "

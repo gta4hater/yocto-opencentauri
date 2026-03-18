@@ -59,8 +59,9 @@ do_install() {
         cp -r ${S}/themes/* ${D}${datadir}/grumpyscreen/themes/
     fi
 
-    install -d ${D}${sysconfdir}/grumpyscreen
-    install -m 0644 ${WORKDIR}/grumpyscreen.cfg ${D}${sysconfdir}/grumpyscreen/
+    install -d ${D}${sysconfdir}/klipper
+    install -d ${D}${sysconfdir}/klipper/config
+    install -m 0644 ${WORKDIR}/grumpyscreen.cfg ${D}${sysconfdir}/klipper/config/
 
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${WORKDIR}/grumpyscreen.init ${D}${sysconfdir}/init.d/grumpyscreen
@@ -69,8 +70,8 @@ do_install() {
 FILES:${PN} = " \
     ${bindir}/grumpyscreen \
     ${datadir}/grumpyscreen \
-    ${sysconfdir}/grumpyscreen \
+    ${sysconfdir}/klipper/config/grumpyscreen.cfg \
     ${sysconfdir}/init.d/grumpyscreen \
 "
 
-CONFFILES:${PN} = "${sysconfdir}/grumpyscreen/grumpyscreen.cfg"
+CONFFILES:${PN} = "${sysconfdir}/klipper/config/grumpyscreen.cfg"

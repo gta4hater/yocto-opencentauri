@@ -8,8 +8,8 @@
 # Short-Description: WebUI Switcher
 ### END INIT INFO
 
-CONF=/user-resource/printer_data/config/display.conf
-SNIPPET=/user-resource/nginx-webui-root.conf
+CONF=/etc/klipper/config/display.conf
+SNIPPET=/etc/nginx-webui-root.conf
 WEBUI=mainsail
 
 [ -f "$CONF" ] && . "$CONF"

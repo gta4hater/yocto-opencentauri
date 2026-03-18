@@ -13,7 +13,7 @@ server {
 
     # This file contains just: root /var/www/fluidd;
     # or: root /var/www/mainsail;
-    include /user-resource/nginx-webui-root.conf;
+    include /etc/nginx-webui-root.conf;
 
     index index.html;
     server_name _;

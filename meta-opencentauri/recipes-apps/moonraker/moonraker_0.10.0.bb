@@ -63,19 +63,25 @@ do_install() {
     cp -r ${S}/moonraker ${D}${datadir}/moonraker/
 
     # Install default moonraker config
-    install -d ${D}${sysconfdir}/moonraker
-    cp ${WORKDIR}/moonraker.conf ${D}${sysconfdir}/moonraker
+    install -d ${D}${sysconfdir}/klipper
+    install -d ${D}${sysconfdir}/klipper/config
+    install -m 0644 ${WORKDIR}/moonraker.conf ${D}${sysconfdir}/klipper/config/
+    # Symlink gcodes to /user-resource
+    ln -sf /user-resource ${D}${sysconfdir}/klipper/gcodes
+    # Symlink logs to /var/log
+    ln -sf /var/log ${D}${sysconfdir}/klipper/logs
 
     # Install SysVinit script
     install -d ${D}${sysconfdir}/init.d
-    cp ${WORKDIR}/moonraker-init-d ${D}${sysconfdir}/init.d/moonraker
-    chmod 0755 ${D}${sysconfdir}/init.d/moonraker
+    install -m 0755 ${WORKDIR}/moonraker-init-d ${D}${sysconfdir}/init.d/moonraker
 }
 
 FILES:${PN} = " \
     ${datadir}/moonraker \
     ${sysconfdir}/init.d/moonraker \
-    ${sysconfdir}/moonraker \
+    ${sysconfdir}/klipper/config/moonraker.conf \
+    ${sysconfdir}/klipper/gcodes \
+    ${sysconfdir}/klipper/logs \
 "
 
-CONFFILES:${PN} = "${sysconfdir}/moonraker/moonraker.conf"
+CONFFILES:${PN} = "${sysconfdir}/klipper/config/moonraker.conf"

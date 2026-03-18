@@ -100,8 +100,9 @@ do_install() {
         cp -r ${S}/themes/* ${D}${datadir}/guppyscreen/themes/
     fi
 
-    install -d ${D}${sysconfdir}/guppyscreen
-    install -m 0644 ${WORKDIR}/guppyconfig.json ${D}${sysconfdir}/guppyscreen/
+    install -d ${D}${sysconfdir}/klipper
+    install -d ${D}${sysconfdir}/klipper/config
+    install -m 0644 ${WORKDIR}/guppyconfig.json ${D}${sysconfdir}/klipper/config/
 
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${WORKDIR}/guppyscreen.init ${D}${sysconfdir}/init.d/guppyscreen
@@ -110,10 +111,10 @@ do_install() {
 FILES:${PN} = " \
     ${bindir}/guppyscreen \
     ${datadir}/guppyscreen \
-    ${sysconfdir}/guppyscreen \
+    ${sysconfdir}/klipper/config/guppyconfig.json \
     ${sysconfdir}/init.d/guppyscreen \
 "
 
-CONFFILES:${PN} = "${sysconfdir}/guppyscreen/guppyconfig.json"
+CONFFILES:${PN} = "${sysconfdir}/klipper/config/guppyconfig.json"
 
 INSANE_SKIP:${PN} = "ldflags"

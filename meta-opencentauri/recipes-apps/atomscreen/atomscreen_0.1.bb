@@ -18,8 +18,9 @@ INITSCRIPT_NAME = "atomscreen"
 INITSCRIPT_PARAMS = "disable"
 
 do_install:append() {
-    install -d ${D}${sysconfdir}/atomscreen
-    install -m 0644 ${WORKDIR}/atomscreen.toml ${D}${sysconfdir}/atomscreen/
+    install -d ${D}${sysconfdir}/klipper
+    install -d ${D}${sysconfdir}/klipper/config
+    install -m 0644 ${WORKDIR}/atomscreen.toml ${D}${sysconfdir}/klipper/config/
 
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${WORKDIR}/atomscreen.init ${D}${sysconfdir}/init.d/atomscreen
@@ -28,6 +29,10 @@ do_install:append() {
 FILES:${PN} += " \
     ${sysconfdir}/init.d/atomscreen \
     ${sysconfdir}/atomscreen \
+"
+
+CONFFILES:${PN} = " \
+    ${sysconfdir}/klipper/config/atomscreen.toml \
 "
 
 PR = "r2"

@@ -6,7 +6,7 @@ LICENSE = "GPL-3.0-only"
 
 IMAGE_FSTYPES += "wic squashfs"
 
-IMAGE_FEATURES += "read-only-rootfs"
+IMAGE_FEATURES += "read-only-rootfs overlayfs-etc"
 
 WKS_FILES = "opencentauri-mmc-image.wks.in"
 WKS_FILE_DEPENDS += "squashfs-tools-native"

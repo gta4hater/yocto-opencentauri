@@ -9,7 +9,7 @@
 ### END INIT INFO
 
 KLIPPY_EXEC="/usr/bin/python3"
-KLIPPY_ARGS="/usr/share/klipper/klippy/klippy.py /user-resource/printer_data/config/printer.cfg -l /user-resource/printer_data/logs/klippy.log -a /tmp/klippy_uds"
+KLIPPY_ARGS="/usr/share/klipper/klippy/klippy.py /etc/klipper/config/printer.cfg -l /var/log/klippy.log -a /run/klippy.sock"
 PIDFILE="/var/run/klipper.pid"
 
 case "$1" in

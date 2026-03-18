@@ -26,7 +26,6 @@ RDEPENDS:${PN} = " \
     kalico-firmware-dsp \
     kalico-firmware-toolhead \
     kalico-firmware-bed \
-    klipper-config \
 "
 
 RPROVIDES:${PN} += "klipper"
@@ -75,19 +74,22 @@ do_install() {
 
     # Install default kalico config
     install -d ${D}${sysconfdir}/klipper
-    cp ${WORKDIR}/printer.cfg ${D}${sysconfdir}/klipper
-    cp ${WORKDIR}/macros.cfg ${D}${sysconfdir}/klipper
+    install -d ${D}${sysconfdir}/klipper/config
+    install -m 0644 ${WORKDIR}/printer.cfg ${D}${sysconfdir}/klipper/config/
+    install -m 0644 ${WORKDIR}/macros.cfg ${D}${sysconfdir}/klipper/config/
 
     # Install SysVinit script
     install -d ${D}${sysconfdir}/init.d
-    cp ${WORKDIR}/klipper-init-d ${D}${sysconfdir}/init.d/klipper
-    chmod 0755 ${D}${sysconfdir}/init.d/klipper
+    install -m 0755 ${WORKDIR}/klipper-init-d ${D}${sysconfdir}/init.d/klipper
 }
 
 FILES:${PN} = " \
     ${datadir}/klipper \
     ${sysconfdir}/init.d/klipper \
-    ${sysconfdir}/klipper \
+    ${sysconfdir}/klipper/config \
 "
 
-CONFFILES:${PN} = "${sysconfdir}/klipper/printer.cfg"
+CONFFILES:${PN} = " \
+    ${sysconfdir}/klipper/config/printer.cfg \
+    ${sysconfdir}/klipper/config/macros.cfg \
+"

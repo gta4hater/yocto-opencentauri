@@ -35,15 +35,16 @@ do_install() {
     cp -r ${S}/* ${D}/var/www/fluidd/
 
     # Install default fluidd config
-    install -d ${D}${sysconfdir}/fluidd
-    cp ${WORKDIR}/fluidd.cfg ${D}${sysconfdir}/fluidd
+    install -d ${D}${sysconfdir}/klipper
+    install -d ${D}${sysconfdir}/klipper/config
+    install -m 0644 ${WORKDIR}/fluidd.cfg ${D}${sysconfdir}/klipper/config/
 }
 
 FILES:${PN} = " \
     /var/www/fluidd \
-    ${sysconfdir}/fluidd/fluidd.cfg \
+    ${sysconfdir}/klipper/config/fluidd.cfg \
 "
 
 CONFFILES:${PN} = " \
-    ${sysconfdir}/fluidd/fluidd.cfg \
+    ${sysconfdir}/klipper/config/fluidd.cfg \
 "
