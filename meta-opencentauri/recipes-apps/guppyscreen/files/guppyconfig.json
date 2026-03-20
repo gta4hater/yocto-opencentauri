@@ -10,6 +10,6 @@
         }
     },
     "thumbnail_path": "/user-resource/.thumbs",
-    "wpa_supplicant": "/etc/wpa_supplicant.conf",
+    "wpa_supplicant": "/run/wpa_supplicant",
     "guppy_init_script": "/etc/init.d/guppyscreen"
 }
