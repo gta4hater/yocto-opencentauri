@@ -13,12 +13,12 @@ PIDFILE=/var/run/gui.pid
 
 case "$1" in
     start)
-        echo "Starting grumpyscreen...\n"
+        echo "Starting grumpyscreen..."
         # Start grumpyscreen in the background
         start-stop-daemon -S -b -m -p "$PIDFILE" -x "$GRUMPYSCREEN_EXEC"
         ;;
     stop)
-        echo "Stopping grumpyscreen...\n"
+        echo "Stopping grumpyscreen..."
         start-stop-daemon -K -p "$PIDFILE" -R 10
         rm -f $PIDFILE
         ;;

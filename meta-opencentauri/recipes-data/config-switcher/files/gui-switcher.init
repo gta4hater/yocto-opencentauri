@@ -16,13 +16,13 @@ PIDFILE=/var/run/gui.pid
 
 case "$1" in
     start)
-        echo "Starting GUI...\n"
+        echo "Starting GUI..."
         if [ -x "/etc/init.d/${GUI}" ]; then
             /etc/init.d/${GUI} start
         fi
         ;;
     stop)
-        printf "Stopping GUI...\n"
+        echo "Stopping GUI..."
         start-stop-daemon -K -p "$PIDFILE" -R 10
         ;;
     restart|force-reload)
