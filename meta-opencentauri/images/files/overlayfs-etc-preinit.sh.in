@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# If called with arguments (e.g., reboot/shutdown runlevel),
+# just pass through to the real init
+if [ $# -ne 0 ]; then
+    exec {SBIN_INIT_NAME} "$@"
+fi
+
 echo "PREINIT: Start"
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
